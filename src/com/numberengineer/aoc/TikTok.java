@@ -2,32 +2,32 @@ package com.numberengineer.aoc;
 
 import java.io.PrintStream;
 
-public class TicToc {
+public class TikTok {
     long start;
     long end;
     long comp;
     long firstTic;
 
-    public TicToc() {
+    public TikTok() {
         super();
     }
 
     public static void main(String[] args) {
-        TicToc ticToc=new TicToc();
-        ticToc.tic();
-        ticToc.toc();
-        ticToc.toc();
-        ticToc.toc();
+        TikTok tikTok =new TikTok();
+        tikTok.tic();
+        tikTok.toc();
+        tikTok.toc();
+        tikTok.toc();
 
     }
-    public TicToc(boolean init) {
+    public TikTok(boolean init) {
         super();
         if (init) {
             tic();
         }
     }
 
-    public TicToc tic() {
+    public TikTok tic() {
         start = System.nanoTime();
         firstTic = start;
         return this;
