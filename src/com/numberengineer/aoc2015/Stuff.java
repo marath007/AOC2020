@@ -6,6 +6,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.regex.Pattern;
 
 import static com.numberengineer.aoc.AocPostCompetition.readFile;
 
@@ -15,7 +16,7 @@ public class Stuff {
 
     public static void main(String[] args) {
 
-        day4();
+        day5();
 
     }
 
@@ -155,6 +156,7 @@ public class Stuff {
                 byte[] digest = md.digest();
                 return toHexString(digest);
             }
+
             String toHexString(byte[] bytes) {
                 StringBuilder hexString = new StringBuilder();
 
@@ -175,14 +177,109 @@ public class Stuff {
         };
         final var hasher = new Hasher();
         String data = "ckczppom";
-        while ( !hasher.getHash(data+(++o.part1)).startsWith("00000")){
+        while (!hasher.getHash(data + (++o.part1)).startsWith("00000")) {
 
         }
-        while ( !hasher.getHash(data+(++o.part2)).startsWith("000000")){
+        while (!hasher.getHash(data + (++o.part2)).startsWith("000000")) {
 
         }
 
         final var methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        System.out.println(methodName + " part1 " + o.part1);
+        System.out.println(methodName + " part2 " + o.part2);
+        tikTok.toc(System.out, " " + methodName);
+    }
+
+    public static void day5() {
+        TikTok tikTok = new TikTok(true);
+        final var methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+
+
+//        boolean testMode = true;
+        boolean testMode = false;
+        String data;
+        if (testMode) {
+            data = "ieodomkazucvgmuy";
+        } else {
+            data = readFile("F:\\DevFolder\\IdeaProjects\\AdventOfCode\\src\\com\\numberengineer\\aoc2015\\data\\" + methodName + ".txt");
+        }
+
+        var o = new Object() {
+            long part1 = 0;
+            long part2 = 0;
+        };
+
+        final var split = data.split("\n");
+        final var twochar = Pattern.compile("(.)\\1+");
+        final var aVowel = Pattern.compile("[aeiou]");
+        final var notAny = Pattern.compile("(xy)|(ab)|(cd)|(pq)");
+        Arrays.stream(split).forEach(s -> {
+            if (twochar.matcher(s).find()) {
+                if (aVowel.matcher(s).results().count() >= 3) {
+                    if (!notAny.matcher(s).find()) {
+                        o.part1++;
+                    }
+                }
+            }
+        });
+        Arrays.stream(split).forEach(s -> {
+            int valids = 0;
+            for (int i = 0; i < s.length() - 2; i++) {
+                if (s.substring(i + 2).contains(s.substring(i, i + 2))) {
+                    valids++;
+                    break;
+                }
+            }
+            for (int i = 0; i < s.length() - 2; i++) {
+                if (s.charAt(i)==s.charAt(i+2)) {
+                    valids++;
+                    break;
+                }
+            }
+            if (valids==2){
+                o.part2++;
+            }
+        });
+        if (testMode) {
+            System.out.println("#######################################");
+            System.out.println("##        THIS IS JUST A TEST        ##");
+            System.out.println("#######################################");
+        }
+        System.out.println(methodName + " part1 " + o.part1);
+        System.out.println(methodName + " part2 " + o.part2);
+        tikTok.toc(System.out, " " + methodName);
+    }
+
+    public static void dayN() {
+        TikTok tikTok = new TikTok(true);
+        final var methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+
+
+//        boolean testMode = true;
+        boolean testMode = false;
+        String data;
+        if (testMode) {
+            data = "mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X\n" +
+                    "mem[8] = 11\n" +
+                    "mem[7] = 101\n" +
+                    "mem[8] = 0";
+        } else {
+            data = readFile("F:\\DevFolder\\IdeaProjects\\AdventOfCode\\src\\com\\numberengineer\\aoc2015\\data\\" + methodName + ".txt");
+        }
+
+        var o = new Object() {
+            long part1 = 0;
+            long part2 = 0;
+        };
+
+        final var split = data.split("\n");
+
+
+        if (testMode) {
+            System.out.println("#######################################");
+            System.out.println("##        THIS IS JUST A TEST        ##");
+            System.out.println("#######################################");
+        }
         System.out.println(methodName + " part1 " + o.part1);
         System.out.println(methodName + " part2 " + o.part2);
         tikTok.toc(System.out, " " + methodName);
