@@ -713,6 +713,187 @@ public class AocPostCompetition {
         tikTok.toc(System.out, " " + methodName);
     }
 
+    public static void day12() {
+        TikTok tikTok = new TikTok(true);
+        enum Cardinal {
+            N, E, S, W;
+
+            Cardinal right(int deg) {
+                final var values = values();
+                return values[(this.ordinal() + deg / 90) % values.length];
+            }
+
+            Cardinal left(int deg) {
+                final var values = values();
+                return values[(this.ordinal() + values.length - deg / 90) % values.length];
+            }
+        }
+        enum Action {
+            N, E, S, W, L, R, F;
+        }
+        record Instruction(Action a, int qty) {
+
+        }
+        class Waypoint {
+            int x = 10;
+            int y = 1;
+
+            void rotate(int deg) {
+                final var x = this.x;
+                final var y = this.y;
+                deg = (deg + 360) % 360;
+                switch (deg) {
+                    case 90 -> {
+                        this.y = -x;
+                        this.x = y;
+                    }
+                    case 180 -> {
+                        this.y = -y;
+                        this.x = -x;
+                    }
+                    case 270 -> {
+                        this.y = x;
+                        this.x = -y;
+                    }
+                }
+            }
+        }
+        class Ship {
+            int x;
+            int y;
+            Cardinal direction = Cardinal.E;
+            Waypoint waypoint = new Waypoint();
+
+            void processInstruction(Instruction instruction) {
+                System.out.println(x + "," + y);
+                switch (instruction.a) {
+                    case N -> y += instruction.qty;
+                    case E -> x += instruction.qty;
+                    case S -> y -= instruction.qty;
+                    case W -> x -= instruction.qty;
+                    case L -> direction = direction.left(instruction.qty);
+                    case R -> direction = direction.right(instruction.qty);
+                    case F -> {
+                        switch (direction) {
+                            case N -> y += instruction.qty;
+                            case E -> x += instruction.qty;
+                            case S -> y -= instruction.qty;
+                            case W -> x -= instruction.qty;
+                        }
+                    }
+                }
+            }
+
+            void processWaypointInstruction(Instruction instruction) {
+                System.out.println(x + "," + y);
+                switch (instruction.a) {
+                    case N -> waypoint.y += instruction.qty;
+                    case E -> waypoint.x += instruction.qty;
+                    case S -> waypoint.y -= instruction.qty;
+                    case W -> waypoint.x -= instruction.qty;
+                    case L -> waypoint.rotate(-instruction.qty);
+                    case R -> waypoint.rotate(instruction.qty);
+                    case F -> {
+                        x += waypoint.x * instruction.qty;
+                        y += waypoint.y * instruction.qty;
+                    }
+                }
+            }
+
+            int getManateeDistance() {
+                System.out.println("over");
+                return Math.abs(x) + Math.abs(y);
+            }
+        }
+        var o = new Object() {
+            long part1 = 0;
+            long part2 = 0;
+        };
+        String data = readFile("F:\\DevFolder\\IdeaProjects\\AdventOfCode\\src\\com\\numberengineer\\aoc\\day12.txt");
+//        String data = "F10\n" +
+//                "N3\n" +
+//                "F7\n" +
+//                "R90\n" +
+//                "F11";
+        final var split = data.split("\n");
+        final var instructions = Arrays.stream(split).map(s -> new Instruction(Action.valueOf(s.substring(0, 1)), Integer.parseInt(s.substring(1)))).toArray(Instruction[]::new);
+        Ship ship = new Ship();
+        Arrays.stream(instructions).forEach(ship::processInstruction);
+        o.part1 = ship.getManateeDistance();
+        ship = new Ship();
+        Arrays.stream(instructions).forEach(ship::processWaypointInstruction);
+        o.part2 = ship.getManateeDistance();
+        final var methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        System.out.println(methodName + " part1 " + o.part1);
+        System.out.println(methodName + " part2 " + o.part2);
+        tikTok.toc(System.out, " " + methodName);
+    }
+    public static void day13() {
+        TikTok tikTok = new TikTok(true);
+        final var methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
+        var o = new Object() {
+            long part1 = 0;
+            long part2 = 0;
+        };
+        String data = readFile("F:\\DevFolder\\IdeaProjects\\AdventOfCode\\src\\com\\numberengineer\\aoc\\data\\"+methodName+".txt");
+//        String data = "939\n" +
+//                "13,x,x,41,x,x,x,x,x,x,x,x,x,467,x,x,x,x,x,x,x,x,x,x,x,19,x,x,x,x,17,x,x,x,x,x,x,x,x,x,x,x,29,x,353,x,x,x,x,x,37,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,23";
+//                "67,7,x,59,61";
+//                "19,x,x,x,x,x,x,x,x,41,x,x,x,37,x,x,x,x,x,787,x,x,x,x,x,x,x,x,x,x,x,x,13,x,x,x,x,x,x,x,x,x,23,x,x,x,x,x,29,x,571,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,17";
+//        String data = "F10\n" +
+//                "N3\n" +
+//                "F7\n" +
+//                "R90\n" +
+//                "F11";
+        final var split = data.split("\n");
+        final var goal = Integer.parseInt(split[0]);
+        final var busses = Arrays.stream(split[1].split(",")).mapToLong((s) -> {
+            if (s.equals("x")) {
+                return -1;
+            } else {
+                return Integer.parseInt(s);
+            }
+        }).toArray();
+        int minVal=999999999;
+        int indexmin=-1;
+        for (int i = 0; i < busses.length; i++) {
+            final var buss = busses[i];
+            if (buss == -1) {
+                continue;
+            }
+            final var l1 = buss * (1 + i / buss);
+            final var i1 = l1- (goal % buss);
+            if (minVal>i1){
+                minVal= (int) i1;
+                indexmin=i;
+            }
+        }
+        o.part1=minVal*busses[indexmin];
+        o.part2 = 0;
+        long root = busses[0];
+        for (int i = 1; i < busses.length; i++) {
+            final var buss = busses[i];
+            if (buss == -1) {
+                continue;
+            }
+            final var l1 = buss * (1 + i / buss);
+            while (true) {
+                final var l = l1 - (o.part2 % buss);
+                if (l == i) {
+                    break;
+                }
+                o.part2 += root;
+            }
+            root *= buss;
+        }
+
+//        final var ints = Arrays.stream(split).mapToInt(Integer::parseInt).toArray();
+//        o.part1;
+//        o.part2;
+        System.out.println(methodName + " part1 " + o.part1);
+        System.out.println(methodName + " part2 " + o.part2);
+        tikTok.toc(System.out, " " + methodName);
+    }
     public static String readFile(String filePath) {
         try {
             return Files.readString(Path.of(filePath));
