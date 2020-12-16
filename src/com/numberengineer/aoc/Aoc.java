@@ -2,179 +2,180 @@ package com.numberengineer.aoc;
 
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.regex.Pattern;
 
-import static com.numberengineer.aoc.AocPostCompetition.readFile;
+import static com.numberengineer.aoc.Utils.*;
 
 class Aoc {
+
     public static void main(String[] args) {
 
 
-        day14();
+        day16();
 
     }
 
-    public static void day14() {
+    public static void day16() {
         TikTok tikTok = new TikTok(true);
-        final var methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
-
-
+        final var day = getDay();
 //        boolean testMode = true;
         boolean testMode = false;
-        String data;
-        if (testMode) {
-            data = "mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X\n" +
-                    "mem[8] = 11\n" +
-                    "mem[7] = 101\n" +
-                    "mem[8] = 0";
-            data = "mask = 000000000000000000000000000000X1001X\n" +
-                    "mem[42] = 100\n" +
-                    "mask = 00000000000000000000000000000000X0XX\n" +
-                    "mem[26] = 1";
-        } else {
-            data = readFile("F:\\DevFolder\\IdeaProjects\\AdventOfCode\\src\\com\\numberengineer\\aoc\\data\\" + methodName + ".txt");
+        String data = "class: 0-1 or 4-19\n" +
+                "row: 0-5 or 8-19\n" +
+                "seat: 0-13 or 16-19\n" +
+                "\n" +
+                "your ticket:\n" +
+                "11,12,13\n" +
+                "\n" +
+                "nearby tickets:\n" +
+                "3,9,18\n" +
+                "15,1,5\n" +
+                "5,14,9";
+        if (!testMode) {
+            data = getData(day);
         }
 
-        record MemoryAddress(long index) {
+        final var blocks = data.split("\n\n");
+        record NamedRange(String s, int from, int to, int from2, int to2) {
 
+            boolean contains(int i) {
+                return (i <= to && i >= from) || (i <= to2 && i >= from2);
+            }
         }
-        record MemoryValue(long value) {
+        record Ticket(int... numbers) {
 
         }
         var o = new Object() {
             long part1 = 0;
             long part2 = 0;
-            long andMask = 0;
-            long orMask = 0;
-            long[] andMasks = {0};
-            long[] orMasks = {0};
         };
-        HashMap<MemoryAddress, MemoryValue> addresses = new HashMap<>();
-        final var split = data.split("\n");
 
-        final var memExtractor = Pattern.compile("mem\\[([0-9]*)] = ([0-9]*)");
-        Arrays.stream(split).forEach(s -> {
-            if (s.startsWith("mask")) {
-                final var mask = s.replace("mask = ", "");
-                o.andMask = Long.parseLong(mask.replace("X", "1"), 2);
-                o.orMask = Long.parseLong(mask.replace("X", "0"), 2);
+        Pattern extractor = Pattern.compile("([a-z ]*): ([\\d]+)-([\\d]+) or ([\\d]+)-([\\d]+)");
+        final var namedRanges = Arrays.stream(blocks[0].split("\n")).map(s -> {
+            final var matcher = extractor.matcher(s);
+            matcher.matches();
+            return new NamedRange(matcher.group(1),
+                    Integer.parseInt(matcher.group(2)),
+                    Integer.parseInt(matcher.group(3)),
+                    Integer.parseInt(matcher.group(4)),
+                    Integer.parseInt(matcher.group(5)));
+        }).toArray(NamedRange[]::new);
+        final var myTicket = new Ticket(Arrays.stream(blocks[1].split("\n")[1].split(",")).mapToInt(Integer::parseInt).toArray());
+        final var nearbyTickets = Arrays.stream(blocks[2].split("\n")).skip(1).map(s -> new Ticket(Arrays.stream(s.split(",")).mapToInt(Integer::parseInt).toArray())).toArray(Ticket[]::new);
 
-            } else {
-                final var matcher = memExtractor.matcher(s);
-                final var matches = matcher.matches();
-                final var address = Long.parseLong(matcher.group(1));
-                final var value = Long.parseLong(matcher.group(2));
-                final var newValue = (value | o.orMask) & o.andMask;
-                addresses.put(new MemoryAddress(address), new MemoryValue(newValue));
-                if (testMode) {
-                    System.out.println(newValue);
-                }
-            }
+        Arrays.stream(nearbyTickets).forEach(t -> {
+            Arrays.stream(t.numbers).asLongStream()
+                    .filter(l -> !Arrays.stream(namedRanges).anyMatch(n -> n.contains((int) l))).forEach(l -> o.part1 += l);
         });
-        o.part1 = addresses.values().stream().mapToLong(MemoryValue::value).sum();
-        addresses.clear();
-        Arrays.stream(split).forEach(s -> {
-            if (s.startsWith("mask")) {
-                final var mask = s.replace("mask = ", "");
-                final var x = mask.length() - mask.replace("X", "").length();
-                long max = (long) Math.pow(2, x);
-                o.andMasks = new long[(int) max];
-                o.orMasks = new long[(int) max];
-                for (int i = 0; i < max; i++) {
-                    var ref = new Object() {
-                        int j = 0;
-                        int xss = 0;
-                    };
-                    int finalI = i;
-                    StringBuilder stringBuilder = new StringBuilder();
-                    for (int j = 0; j < mask.length(); j++) {
-                        char c = mask.charAt(j);
-                        if (c == 'X') {
-                            final var offset = 1 << ref.xss;
-                            if ((offset & finalI) == 0) {
-                                c = '0';
-                            } else {
-                                c = '1';
-                            }
-                            ref.xss++;
-                        } else if (c == '0') {
-                            c = 'X';
-                        }
-                        stringBuilder.append(c);
-                    }
-                    String newMask = stringBuilder.toString();
-                    if (testMode) {
-                        System.out.println(newMask);
-                    }
-                    o.andMasks[i] = Long.parseLong(newMask.replace("X", "1"), 2);
-                    o.orMasks[i] = Long.parseLong(newMask.replace("X", "0"), 2);
-                }
-            } else {
-                final var matcher = memExtractor.matcher(s);
-                final var matches = matcher.matches();
-                final var address = Long.parseLong(matcher.group(1));
-                final var value = Long.parseLong(matcher.group(2));
-                for (int i = 0; i < o.andMasks.length; i++) {
-                    final var newAddress = (address | o.orMasks[i]) & o.andMasks[i];
-                    addresses.put(new MemoryAddress(newAddress), new MemoryValue(value));
-                    if (testMode) {
-                        System.out.println(newAddress);
-                    }
-                }
+        final var validTickets = Arrays.stream(nearbyTickets).filter(t -> Arrays.stream(t.numbers).asLongStream().allMatch(l -> Arrays.stream(namedRanges).anyMatch(n -> n.contains((int) l)))).toArray(Ticket[]::new);
+        boolean[][] booleans = new boolean[namedRanges.length][namedRanges.length];//get [range][field]
+        for (int i = 0; i < booleans.length; i++) {
+            final var namedRange = namedRanges[i];
+            for (int j = 0; j < booleans[0].length; j++) {
+                int finalJ = j;
+                booleans[i][j] = Arrays.stream(validTickets).allMatch(t -> namedRange.contains(t.numbers[finalJ]));
             }
-        });
-        o.part2 = addresses.values().stream().mapToLong(MemoryValue::value).sum();
-
-        if (testMode) {
-            System.out.println("#######################################");
-            System.out.println("##        THIS IS JUST A TEST        ##");
-            System.out.println("#######################################");
         }
-        System.out.println(methodName + " part1 " + o.part1);
-        System.out.println(methodName + " part2 " + o.part2);
-        tikTok.toc(System.out, " " + methodName);
+        int[] chainOfSolve = new int[booleans.length];
+        for (int i = 0; i < booleans.length; i++) {
+            final var aBoolean = booleans[i];
+            for (int j = 0; j < aBoolean.length; j++) {
+                chainOfSolve[i] += (aBoolean[j] ? 1 : 0);
+            }
+        }
+        for (int i = 0; i < chainOfSolve.length; i++) {
+            int j = 0;
+            while (chainOfSolve[j++] != i + 1) {
+
+            }
+            j--;
+            int indexOfTruth = indexOfTruth(booleans[j]);
+            for (int k = 0; k < chainOfSolve.length; k++) {
+                if (k != j) {
+                    booleans[k][indexOfTruth] = false;
+                }
+            }
+
+        }
+        int[] trueIndexes = new int[booleans.length];
+        for (int i = 0; i < booleans.length; i++) {
+            trueIndexes[i] = indexOfTruth(booleans[i]);
+        }
+        o.part2 = 1;
+        for (int i = 0; i < namedRanges.length; i++) {
+            if (namedRanges[i].s.startsWith("departure")) {
+                System.out.println(namedRanges[i].s+"="+myTicket.numbers[trueIndexes[i]]);
+                o.part2 *= myTicket.numbers[trueIndexes[i]];
+            }
+            if (testMode){
+                if (namedRanges[i].s.startsWith("class")){
+                    System.out.println("class=" + myTicket.numbers[trueIndexes[i]]);
+                }
+                if (namedRanges[i].s.startsWith("row")){
+                    System.out.println("row=" + myTicket.numbers[trueIndexes[i]]);
+                }
+                if (namedRanges[i].s.startsWith("seat")){
+                    System.out.println("seat=" + myTicket.numbers[trueIndexes[i]]);
+                }
+            }
+        }
+//        for (int i = 0; i < namedRanges1.length; i++) {
+//            if (namedRanges1[i].s.startsWith("departure")) {
+//                System.out.println(namedRanges1[i].s+"="+myTicket.numbers[i]);
+//                o.part2 *= myTicket.numbers[i];
+//            }
+//            if (testMode){
+//                if (namedRanges1[i].s.startsWith("class")){
+//                    System.out.println("class=" + myTicket.numbers[i]);
+//                }
+//                if (namedRanges1[i].s.startsWith("row")){
+//                    System.out.println("row=" + myTicket.numbers[i]);
+//                }
+//                if (namedRanges1[i].s.startsWith("seat")){
+//                    System.out.println("seat=" + myTicket.numbers[i]);
+//                }
+//            }
+//        }
+
+        if (o.part2<=2016493457861L||o.part2>=2972476609733L){
+            System.out.println("######invalid########");
+        }
+        endOfWork(tikTok, day, testMode, o.part1, o.part2);
     }
+
+    private static int indexOfTruth(boolean[] booleans1) {
+        int answer=-1;
+        for (int k = 0; k < booleans1.length; k++) {
+            if (booleans1[k]) {
+                if (answer!=-1){
+                    throw new RuntimeException("not only one boolean");
+                }
+                answer= k;
+            }
+        }
+        return answer;
+    }
+
 
     public static void dayN() {
         TikTok tikTok = new TikTok(true);
-        final var methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
-
-
+        final var day = getDay();
 //        boolean testMode = true;
         boolean testMode = false;
-        String data;
-        if (testMode) {
-            data = "mask = XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X\n" +
-                    "mem[8] = 11\n" +
-                    "mem[7] = 101\n" +
-                    "mem[8] = 0";
-        } else {
-            data = readFile("F:\\DevFolder\\IdeaProjects\\AdventOfCode\\src\\com\\numberengineer\\aoc\\data\\" + methodName + ".txt");
-        }
-
-        record MemoryAddress(long index) {
-
-        }
-        record MemoryValue(long value) {
-
+        String data = "";
+        if (!testMode) {
+            data = getData(day);
         }
         var o = new Object() {
             long part1 = 0;
             long part2 = 0;
         };
-        HashMap<MemoryAddress, MemoryValue> addresses = new HashMap<>();
-        final var split = data.split("\n");
+        final var strings = asLines(data);
+        final var longs = asLongs(data);
 
 
-        if (testMode) {
-            System.out.println("#######################################");
-            System.out.println("##        THIS IS JUST A TEST        ##");
-            System.out.println("#######################################");
-        }
-        System.out.println(methodName + " part1 " + o.part1);
-        System.out.println(methodName + " part2 " + o.part2);
-        tikTok.toc(System.out, " " + methodName);
+        endOfWork(tikTok, day, testMode, o.part1, o.part2);
     }
+
 
 }
