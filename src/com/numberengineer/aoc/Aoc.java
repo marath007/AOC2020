@@ -15,8 +15,8 @@ class Aoc {
     public static void day17() {
         TikTok tikTok = new TikTok(true);
         final var day = getDay();
-//        boolean testMode = true;
-        boolean testMode = false;
+        boolean testMode = true;
+//        boolean testMode = false;
         String data = ".#.\n" +
                 "..#\n" +
                 "###";
@@ -124,7 +124,7 @@ class Aoc {
         for (int i = 0; i < strings.length; i++) {
             for (int j = 0; j < strings[i].length(); j++) {
                 if (strings[i].charAt(j) == '#') {
-                    grid.states.add(new Coordinate(j, i, 0,0));
+                    grid.states.add(new Coordinate(j, i, 0, 0));
                 }
             }
         }
@@ -132,6 +132,29 @@ class Aoc {
             grid = grid.evolve();
         }
         o.part2 = grid.states.size();
+        int[] series = new int[]{10, 11, 12};
+        System.out.println("Compute time, Dim, Gen, Actives");
+        Arrays.stream(series).parallel().forEach(value -> {
+            TikTok tikTok1 = new TikTok(true);
+            Grid protoGrid = new Grid();
+            for (int i = 0; i < strings.length; i++) {
+                for (int j = 0; j < strings[i].length(); j++) {
+                    if (strings[i].charAt(j) == '#') {
+                        int[] ints = new int[value];
+                        ints[0] = j;
+                        ints[1] = i;
+                        protoGrid.states.add(new Coordinate(ints));
+                    }
+                }
+            }
+            int i = 0;
+            while (true) {
+                tikTok1.tic();
+                protoGrid = protoGrid.evolve();
+                tikTok1.toc(System.out, ", " + value + ", " + ++i + ", " + protoGrid.states.size());
+            }
+        });
+        System.out.println(grid.states.size());
         endOfWork(tikTok, day, testMode, o.part1, o.part2);
     }
 
