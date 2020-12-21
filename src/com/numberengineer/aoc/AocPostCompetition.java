@@ -7,10 +7,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
+import java.util.*;
+import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
@@ -46,7 +44,7 @@ public class AocPostCompetition {
         TikTok tikTok = new TikTok(true);
         final var day = Utils.getDay();
         String data = Utils.getData(day);
-        String[] s =Utils.asLines(data);
+        String[] s = Utils.asLines(data);
         var o = new Object() {
             int part1 = 0;
             int part2 = 0;
@@ -75,7 +73,7 @@ public class AocPostCompetition {
         TikTok tikTok = new TikTok(true);
         final var day = Utils.getDay();
         String data = Utils.getData(day);
-        String[] strings =Utils.asLines(data);
+        String[] strings = Utils.asLines(data);
         var o = new Object() {
             int part1 = 0;
             long part2 = 0;
@@ -351,7 +349,6 @@ public class AocPostCompetition {
         };
 
 
-
         final var instructions = Arrays.stream(split).map(s -> {
             final var values = s.split(" ");
             return new Instruction(values[0], Integer.valueOf(values[1]), o.line_no++);
@@ -437,7 +434,7 @@ public class AocPostCompetition {
         o.previous = 0;
         o.three++;
         Arrays.stream(ints).filter(i -> {
-//            if (o.previous + 3 >= i) {
+//            if (o.previous + 3 >= ins) {
             switch (i - o.previous) {
                 case 1:
                     o.one++;
@@ -476,7 +473,7 @@ public class AocPostCompetition {
         o.part2 = 1;
 //        BigInteger bigInteger = new BigInteger("1");
         for (int i = 2; i < multi.length; i++) {
-//            bigInteger = bigInteger.multiply(new BigInteger(String.valueOf(multi[i])).pow(sums[i]));
+//            bigInteger = bigInteger.multiply(new BigInteger(String.valueOf(multi[ins])).pow(sums[ins]));
             o.part2 *= Math.pow(multi[i], sums[i]);
         }
 //        o.part2/=2;
@@ -984,6 +981,7 @@ public class AocPostCompetition {
 
         endOfWork(tikTok, day, testMode, o.part1, o.part2);
     }
+
     public static void day15() {
         TikTok tikTok = new TikTok(true);
         final var day = getDay();
@@ -1053,9 +1051,10 @@ public class AocPostCompetition {
             }
             lastNumber = nextNumber;
         }
-        o.part2=lastNumber;
+        o.part2 = lastNumber;
         endOfWork(tikTok, day, testMode, o.part1, o.part2);
     }
+
     public static void day16() {
         TikTok tikTok = new TikTok(true);
         final var day = getDay();
@@ -1145,17 +1144,17 @@ public class AocPostCompetition {
         o.part2 = 1;
         for (int i = 0; i < namedRanges.length; i++) {
             if (namedRanges[i].s.startsWith("departure")) {
-                System.out.println(namedRanges[i].s+"="+myTicket.numbers[trueIndexes[i]]);
+                System.out.println(namedRanges[i].s + "=" + myTicket.numbers[trueIndexes[i]]);
                 o.part2 *= myTicket.numbers[trueIndexes[i]];
             }
-            if (testMode){
-                if (namedRanges[i].s.startsWith("class")){
+            if (testMode) {
+                if (namedRanges[i].s.startsWith("class")) {
                     System.out.println("class=" + myTicket.numbers[trueIndexes[i]]);
                 }
-                if (namedRanges[i].s.startsWith("row")){
+                if (namedRanges[i].s.startsWith("row")) {
                     System.out.println("row=" + myTicket.numbers[trueIndexes[i]]);
                 }
-                if (namedRanges[i].s.startsWith("seat")){
+                if (namedRanges[i].s.startsWith("seat")) {
                     System.out.println("seat=" + myTicket.numbers[trueIndexes[i]]);
                 }
             }
@@ -1165,14 +1164,527 @@ public class AocPostCompetition {
         endOfWork(tikTok, day, testMode, o.part1, o.part2);
     }
 
+    public static void day17() {
+        TikTok tikTok = new TikTok(true);
+        final var day = getDay();
+//        boolean testMode = true;
+        boolean testMode = false;
+        String data = ".#.\n" +
+                "..#\n" +
+                "###";
+        if (!testMode) {
+            data = getData(day);
+        }
+        record Coordinate(int... ints) {
+            @Override
+            public int hashCode() {
+                return Arrays.hashCode(ints);
+            }
+
+            @Override
+            public String toString() {
+                return Arrays.toString(ints);
+            }
+
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+                Coordinate that = (Coordinate) o;
+                return Arrays.equals(ints, that.ints);
+            }
+        }
+        class Grid {
+            HashSet<Coordinate> states = new HashSet<>();
+
+            public Grid() {
+
+            }
+
+            boolean exist(int... ints) {
+                return states.contains(new Coordinate(ints));
+            }
+
+            private int countAdjacent(int index, Coordinate test, Coordinate ref, HashSet<Coordinate> coords) {
+                if (index == 0) {
+
+                    if (test.equals(ref)) {
+                        return 0;
+                    }
+//                    if (exist(test.ints)) {
+//                        System.out.println(test);
+//                    }
+                    coords.add(test);
+                    return exist(test.ints) ? 1 : 0;
+                } else {
+                    int sum = 0;
+                    for (int i = -1; i <= 1; i++) {
+                        final var ints = Arrays.copyOf(test.ints, test.ints.length);
+                        ints[index - 1] = ref.ints[index - 1] + i;
+                        Coordinate newCoord = new Coordinate(ints);
+                        sum += countAdjacent(index - 1, newCoord, ref, coords);
+                    }
+                    return sum;
+                }
+            }
+
+            public Grid evolve() {
+                HashSet<Coordinate> coords = new HashSet<>();
+                Grid grid = new Grid();
+                for (Coordinate state : states) {
+//                    System.out.println("Next to " + state);
+                    final var actives = countAdjacent(state.ints.length, state, state, coords);
+//                    System.out.println("Sum: " + actives);
+                    if (actives == 3 || actives == 2) {
+                        grid.states.add(state);
+                    }
+                }
+//                for (Coordinate state : states) {
+//                    coords.remove(state);
+//                }
+                for (Coordinate state : coords) {
+                    if (states.contains(state)) {
+                        continue;
+                    }
+                    final var actives = countAdjacent(state.ints.length, state, state, new HashSet<>());
+                    if (actives == 3) {
+                        grid.states.add(state);
+                    }
+                }
+                return grid;
+            }
+        }
+        var o = new Object() {
+            long part1 = 0;
+            long part2 = 0;
+        };
+        final var strings = asLines(data);
+//        final var longs = asLongs(data);
+
+        var grid = new Grid();
+        for (int i = 0; i < strings.length; i++) {
+            for (int j = 0; j < strings[i].length(); j++) {
+                if (strings[i].charAt(j) == '#') {
+                    grid.states.add(new Coordinate(j, i, 0));
+                }
+            }
+        }
+        for (int i = 0; i < 6; i++) {
+            grid = grid.evolve();
+        }
+        o.part1 = grid.states.size();
+        grid = new Grid();
+        for (int i = 0; i < strings.length; i++) {
+            for (int j = 0; j < strings[i].length(); j++) {
+                if (strings[i].charAt(j) == '#') {
+                    grid.states.add(new Coordinate(j, i, 0, 0));
+                }
+            }
+        }
+        for (int i = 0; i < 6; i++) {
+            grid = grid.evolve();
+        }
+        o.part2 = grid.states.size();
+        endOfWork(tikTok, day, testMode, o.part1, o.part2);
+    }
+
+    public static void day18() {
+        String tab = "\t";
+        TikTok tikTok = new TikTok(true);
+        final var day = getDay();
+        boolean testMode = true;
+//        boolean testMode = false;
+        String data = """
+                1 + (2 * 3) + (4 * (5 + 6))
+                2 * 3 + (4 * 5)
+                5 + (8 * 3 + 9 + 3 * 4 * 3)
+                5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))
+                ((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2
+                """;
+//        String data = "(9 + (8 * 9 * 4 * 5 + 4) * 9 * 4 * 9 * 4) * ((6 * 9) + 3) * (6 * (3 * 5 + 6 + 9 + 2) * 6 + (4 + 5 + 3 + 2 + 2 * 4)) + 8 * 4 + 9";
+        if (!testMode) {
+            data = getData(day);
+        }
+
+
+        var o = new Object() {
+            long part1 = 0;
+            long part2 = 0;
+
+            long crunch(String s) {
+                s = s + "  ";
+                long currentNumber = 0;
+                long nextNumber = 0;
+                BiFunction<Long, Long, Long> add = (integer, integer2) -> integer + integer2;
+                BiFunction<Long, Long, Long> multi = (integer, integer2) -> integer * integer2;
+                BiFunction<Long, Long, Long> none = (integer, integer2) -> integer2;
+                BiFunction<Long, Long, Long> current = none;
+                HardFabricator hardFabricator = new HardFabricator(s);
+                while (true) {
+                    final var c = hardFabricator.peek();
+                    if (c == 0) {
+                        break;
+                    }
+                    switch (c) {
+                        case '1':
+                        case '2':
+                        case '3':
+                        case '4':
+                        case '5':
+                        case '6':
+                        case '7':
+                        case '8':
+                        case '9':
+                        case '0':
+                            nextNumber = Long.parseLong(hardFabricator.readTextUntil(' '));
+                            break;
+                        case '(':
+                            hardFabricator.traverseUpToChar('(');
+                            nextNumber = crunch(hardFabricator.readUntilClosed());
+                            break;
+                        case '+':
+                            current = add;
+                            hardFabricator.traverseUpToChar(' ');
+                            continue;
+                        case '*':
+                            current = multi;
+                            hardFabricator.traverseUpToChar(' ');
+                            continue;
+                        case ')':
+                            System.out.println("help");
+                            break;
+                        case ' ':
+                            hardFabricator.skip(1);
+                            continue;
+                    }
+                    currentNumber = current.apply(currentNumber, nextNumber);
+                }
+                return currentNumber;
+            }
+
+            long crunchV2(String s, int indent) {
+
+                System.out.println(tab.repeat(indent) + s);
+                while (s.contains("(")) {
+
+                    HardFabricator hardFabricator = new HardFabricator(s);
+                    hardFabricator.traverseUpToChar('(');
+                    final var s1 = hardFabricator.readUntilClosed();
+//            System.out.println("break (" + s1 + ")");
+                    long res = crunchV2(s1, indent + 1);
+                    s = s.replace("(" + s1 + ")", res + "");
+                    System.out.println(tab.repeat(indent) + s);
+                }
+                while (s.contains("+")) {
+                    final var i = s.indexOf("+");
+                    int kR = 2;
+                    long rightVal = 0;
+                    while (true) {
+                        final var index = i + kR++;
+                        if (index == s.length()) {
+                            break;
+                        }
+                        final var c = s.charAt(index);
+                        if (c >= '0' && c <= '9') {
+                            rightVal *= 10;
+                            rightVal += c - '0';
+                        } else {
+                            break;
+                        }
+                    }
+                    long leftVal = 0;
+                    int kL = -2;
+                    while (true) {
+                        final var index = i + kL--;
+                        if (index == -1) {
+                            break;
+                        }
+                        final var c = s.charAt(index);
+                        if (c >= '0' && c <= '9') {
+                            leftVal += (c - '0') * Math.pow(10, -3 - kL);
+                        } else {
+                            break;
+                        }
+                    }
+//            System.out.println("adding "+ leftVal+ " + "+ rightVal);
+                    s = s.replaceFirst(s.substring(i + kL + 2, i + kR - 1).replace("+", "\\+"), "" + (Math.addExact(leftVal, rightVal)));
+                    System.out.println(tab.repeat(indent) + s);
+                }
+                while (s.contains("*")) {
+                    final var i = s.indexOf("*");
+                    int kR = 2;
+                    long rightVal = 0;
+                    while (true) {
+                        final var index = i + kR++;
+                        if (index == s.length()) {
+                            break;
+                        }
+                        final var c = s.charAt(index);
+                        if (c >= '0' && c <= '9') {
+                            rightVal *= 10;
+                            rightVal += c - '0';
+                        } else {
+                            break;
+                        }
+                    }
+                    long leftVal = 0;
+                    int kL = -2;
+                    while (true) {
+                        final var index = i + kL--;
+                        if (index == -1) {
+                            break;
+                        }
+                        final var c = s.charAt(index);
+                        if (c >= '0' && c <= '9') {
+                            leftVal += (c - '0') * Math.pow(10, -3 - kL);
+                        } else {
+                            break;
+                        }
+                    }
+//            System.out.println("multiplying "+ leftVal+ " * "+ rightVal);
+                    s = s.replaceFirst(s.substring(i + kL + 2, i + kR - 1).replace("*", "\\*"), "" + (Math.multiplyExact(leftVal, rightVal)));
+                    System.out.println(tab.repeat(indent) + s);
+                }
+                return Long.parseLong(s);
+            }
+
+        };
+        final var strings = asLines(data);
+
+        for (int i = 0; i < strings.length; i++) {
+            o.part1 += o.crunch(strings[i]);
+        }
+        for (int i = 0; i < strings.length; i++) {
+
+            final var part2 = o.crunchV2(strings[i], 0);
+
+            if (testMode) {
+                System.out.println(part2);
+            }
+            o.part2 = Math.addExact(o.part2, part2);
+        }
+
+
+        endOfWork(tikTok, day, testMode, o.part1, o.part2);
+    }
+    public static void day19() {
+        TikTok tikTok = new TikTok(true);
+        final var day = getDay();
+//        boolean testMode = true;
+        boolean testMode = false;
+        String data = """
+                42: 9 14 | 10 1
+                9: 14 27 | 1 26
+                10: 23 14 | 28 1
+                1: "a"
+                11: 42 31
+                5: 1 14 | 15 1
+                19: 14 1 | 14 14
+                12: 24 14 | 19 1
+                16: 15 1 | 14 14
+                31: 14 17 | 1 13
+                6: 14 14 | 1 14
+                2: 1 24 | 14 4
+                0: 8 11
+                13: 14 3 | 1 12
+                15: 1 | 14
+                17: 14 2 | 1 7
+                23: 25 1 | 22 14
+                28: 16 1
+                4: 1 1
+                20: 14 14 | 1 15
+                3: 5 14 | 16 1
+                27: 1 6 | 14 18
+                14: "b"
+                21: 14 1 | 1 14
+                25: 1 1 | 1 14
+                22: 14 14
+                8: 42
+                26: 14 22 | 1 20
+                18: 15 15
+                7: 14 5 | 1 21
+                24: 14 1
+                                        
+                abbbbbabbbaaaababbaabbbbabababbbabbbbbbabaaaa
+                bbabbbbaabaabba
+                babbbbaabbbbbabbbbbbaabaaabaaa
+                aaabbbbbbaaaabaababaabababbabaaabbababababaaa
+                bbbbbbbaaaabbbbaaabbabaaa
+                bbbababbbbaaaaaaaabbababaaababaabab
+                ababaaaaaabaaab
+                ababaaaaabbbaba
+                baabbaaaabbaaaababbaababb
+                abbbbabbbbaaaababbbbbbaaaababb
+                aaaaabbaabaaaaababaa
+                aaaabbaaaabbaaa
+                aaaabbaabbaaaaaaabbbabbbaaabbaabaaa
+                babaaabbbaaabaababbaabababaaab
+                aabbbbbaabbbaaaaaabbbbbababaaaaabbaaabba
+                """;
+        if (!testMode) {
+            data = getData(day);
+        }
+        record RuleNo(int i) {
+
+        }
+
+        abstract class Rule {
+
+            abstract int[] tests(String s, int[] atIndexes);
+        }
+        class RawRule extends Rule {
+            char match;
+
+            @Override
+            int[] tests(String s, int[] atIndexes) {
+                int[] ints = Arrays.copyOf(atIndexes, atIndexes.length);
+                for (int i = 0; i < atIndexes.length; i++) {
+                    final var atIndex = atIndexes[i];
+                    ints[i] = (atIndex >= s.length() || atIndex == -1 || s.charAt(atIndex) != match) ? -1 : atIndex + 1;
+                }
+                return ints;
+            }
+        }
+        class SimpleRule extends Rule {
+            int[] _rules;
+            Rule[] rules;
+
+            @Override
+            int[] tests(String s, int[] atIndexes) {
+                atIndexes = clean(atIndexes);
+                if (atIndexes.length == 0) {
+                    return atIndexes;
+                }
+                int[] tests = Arrays.copyOf(atIndexes, atIndexes.length);
+                for (int j = 0; j < rules.length; j++) {
+                    tests = rules[j].tests(s, tests);
+                }
+                tests = clean(tests);
+                return tests;
+            }
+
+            private int[] clean(int[] atIndexes) {
+                return Arrays.stream(atIndexes).filter(i -> i != -1).distinct().toArray();
+            }
+        }
+        class OrRules extends Rule {
+            int[] _rules;
+            int[] _orRules;
+            Rule[] rules;
+            Rule[] orRules;
+
+            @Override
+            int[] tests(String s, int[] atIndexes) {
+                atIndexes = clean(atIndexes);
+                if (atIndexes.length == 0) {
+                    return atIndexes;
+                }
+                int[] tests = Arrays.copyOf(atIndexes, atIndexes.length);
+                int[] tests2 = Arrays.copyOf(atIndexes, atIndexes.length);
+                for (int j = 0; j < rules.length; j++) {
+                    tests = rules[j].tests(s, tests);
+                }
+                for (int j = 0; j < orRules.length; j++) {
+                    tests2 = orRules[j].tests(s, tests2);
+                }
+                atIndexes = new int[tests.length + tests2.length];
+                System.arraycopy(tests, 0, atIndexes, 0, tests.length);
+                System.arraycopy(tests2, 0, atIndexes, tests.length, tests2.length);
+                atIndexes = clean(atIndexes);
+                return atIndexes;
+            }
+
+            private int[] clean(int[] atIndexes) {
+                return Arrays.stream(atIndexes).filter(i -> i != -1).distinct().toArray();
+            }
+        }
+        HashMap<RuleNo, Rule> map = new HashMap<>();
+
+        var o = new Object() {
+            long part1 = 0;
+            long part2 = 0;
+
+            void bindMap() {
+                map.values().stream().forEach(rule -> {
+                    if (rule instanceof SimpleRule simpleRule) {
+                        simpleRule.rules = Arrays.stream(simpleRule._rules).mapToObj(RuleNo::new)
+                                .map(map::get)
+                                .toArray(Rule[]::new);
+                    } else if (rule instanceof OrRules orRules) {
+                        orRules.rules = Arrays.stream(orRules._rules).mapToObj(RuleNo::new)
+                                .map(map::get)
+                                .toArray(Rule[]::new);
+                        orRules.orRules = Arrays.stream(orRules._orRules).mapToObj(RuleNo::new)
+                                .map(map::get)
+                                .toArray(Rule[]::new);
+                    }
+                });
+            }
+
+            Rule makeRule(String s) {
+                Rule rule;
+                if (s.contains("|")) {
+                    final var tRule = new OrRules();
+                    rule = tRule;
+                    final var s1 = s.split("\\|");
+                    tRule._rules = Arrays.stream(s1[0].trim().split(" "))
+                            .mapToInt(Integer::parseInt).toArray();
+                    tRule._orRules = Arrays.stream(s1[1].trim().split(" "))
+                            .mapToInt(Integer::parseInt).toArray();
+                } else if (s.contains("\"")) {
+                    final var tRule = new RawRule();
+                    rule = tRule;
+                    tRule.match = s.replace("\"", "").charAt(0);
+                } else {
+                    final var tRule = new SimpleRule();
+                    rule = tRule;
+                    final var s1 = s.split("\\|");
+                    tRule._rules = Arrays.stream(s1[0].trim().split(" "))
+                            .mapToInt(Integer::parseInt).toArray();
+                }
+                return rule;
+            }
+        };
+
+        final var split = data.split("\n\n");
+        final var rules = asLines(split[0]);
+        Arrays.stream(rules).forEach(s -> {
+            if (testMode) {
+                System.out.println(s);
+            }
+            final var values = s.split(": ");
+            final var key = new RuleNo(Integer.parseInt(values[0]));
+            final var rule = o.makeRule(values[1]);
+            map.put(key, rule);
+        });
+
+        final var messages = asLines(split[1]);
+        Rule zero = map.get(new RuleNo(0));
+        o.bindMap();
+        for (int i = 0; i < messages.length; i++) {
+            int finalI = i;
+            final var test = Arrays.stream(zero.tests(messages[i], new int[]{0})).filter(value -> value == messages[finalI].length()).count() > 0;
+            o.part1 += test ? 1 : 0;
+        }
+        map.put(new RuleNo(8), o.makeRule("42 | 42 8"));
+        map.put(new RuleNo(11), o.makeRule("42 31 | 42 11 31"));
+        o.bindMap();
+        for (int i = 0; i < messages.length; i++) {
+            int finalI = i;
+            final var test = Arrays.stream(zero.tests(messages[i], new int[]{0})).filter(value -> value == messages[finalI].length()).count() > 0;
+            o.part2 += test ? 1 : 0;
+        }
+
+        endOfWork(tikTok, day, testMode, o.part1, o.part2);
+    }
     private static int indexOfTruth(boolean[] booleans1) {
-        int answer=-1;
+        int answer = -1;
         for (int k = 0; k < booleans1.length; k++) {
             if (booleans1[k]) {
-                if (answer!=-1){
+                if (answer != -1) {
                     throw new RuntimeException("not only one boolean");
                 }
-                answer= k;
+                answer = k;
             }
         }
         return answer;

@@ -15,14 +15,14 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static com.numberengineer.aoc.AocPostCompetition.readFile;
+import static com.numberengineer.aoc.Utils.*;
 
 public class Stuff {
     public Stuff() {
     }
 
     public static void main(String[] args) {
-
-        day9();
+        day7();
 
     }
 
@@ -348,6 +348,73 @@ public class Stuff {
         tikTok.toc(System.out, " " + methodName);
     }
 
+    public static void day7() {
+        TikTok tikTok = new TikTok(true);
+        final var day = getDay();
+
+        boolean testMode = true;
+//        boolean testMode = false;
+        String
+                data = "123 -> x\n" +
+                "456 -> y\n" +
+                "x AND y -> d\n" +
+                "x OR y -> e\n" +
+                "x LSHIFT 2 -> f\n" +
+                "y RSHIFT 2 -> g\n" +
+                "NOT x -> h\n" +
+                "NOT y -> ins";
+        if (!testMode) {
+            data = getData(day);
+        }
+        record Instruction(String ins) {
+
+        }
+        class Circuit {
+            HashMap<String, Instruction> map = new HashMap<>();
+            HashMap<String, Long> result = new HashMap<>();
+            Predicate<String> digit= Pattern.compile("^[\\d]+$").asMatchPredicate();
+            private long process(String s) {
+                if (result.containsKey(s)) {
+                    return result.get(s);
+                } else {
+                    Instruction instruction = map.get(s);
+                    long value;
+                    if (digit.test(instruction.ins)){
+
+                        value = Long.parseLong(instruction.ins);
+                    }else {
+
+                    }
+                        value = 0;
+//                    process("");
+
+                    result.put(s, value);
+                    return 0;
+                }
+            }
+        }
+        var o = new Object() {
+            long part1 = 0;
+            long part2 = 0;
+        };
+        final var split = data.split("\n");
+
+        Circuit circuit = new Circuit();
+        Arrays.stream(split).forEach(s -> {
+            final var line = s.split(" -> ");
+            circuit.map.put(line[1], new Instruction(line[0]));
+        });
+        if (testMode) {
+            circuit.process("x");
+        } else {
+            circuit.process("a");
+        }
+
+
+        endOfWork(tikTok, day, testMode, o.part1, o.part2);
+    }
+
+
     public static void day9() {
         TikTok tikTok = new TikTok(true);
         final var methodName = Thread.currentThread().getStackTrace()[1].getMethodName();
@@ -410,7 +477,7 @@ public class Stuff {
                 }
             }
 
-            final var tspDynamicProgrammingIterative = new TravelingSalesman(i,tGraph);
+            final var tspDynamicProgrammingIterative = new TravelingSalesman(i, tGraph);
             double tsp = tspDynamicProgrammingIterative.getTourCost();
             System.out.println(tsp);
             o.part1 = (long) Math.min(o.part1, tsp);
@@ -427,7 +494,7 @@ public class Stuff {
                 }
             }
 
-            final var tspDynamicProgrammingIterative = new TravelingSalesman(i,tGraph);
+            final var tspDynamicProgrammingIterative = new TravelingSalesman(i, tGraph);
             double tsp = tspDynamicProgrammingIterative.getTourCost();
 
             System.out.println(tsp);

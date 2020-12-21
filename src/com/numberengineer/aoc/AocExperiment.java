@@ -109,7 +109,7 @@ public class AocExperiment {
         final var strings = asLines(data);
 //        final var longs = asLongs(data);
 
-        int[] series = new int[]{10, 11, 12};
+        int[] series = new int[]{6,7};
         System.out.println("Compute time, Dim, Gen, Actives");
         Arrays.stream(series).parallel().forEach(value -> {
             TikTok tikTok1 = new TikTok(true);

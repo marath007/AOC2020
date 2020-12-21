@@ -62,7 +62,7 @@ public class TimeVar {
 //        try {
 //            var holderString = tim.Split(',');
 //            var holder = new long[5];
-//            for (var i = 0; i < 5; i++) holder[i] = long.Parse(holderString[i]);
+//            for (var ins = 0; ins < 5; ins++) holder[ins] = long.Parse(holderString[ins]);
 //            return new TimeVar(holder[0], holder[1], holder[2], holder[3], holder[4]);
 //        } catch {
 //            return new TimeVar(0);
