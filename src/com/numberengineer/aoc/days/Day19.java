@@ -1,4 +1,6 @@
-package com.numberengineer.aoc;
+package com.numberengineer.aoc.days;
+
+import com.numberengineer.aoc.TikTok;
 
 import java.util.Arrays;
 import java.util.HashMap;
