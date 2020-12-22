@@ -61,7 +61,7 @@ public class Day21 {
                 final var strings1 = reduce.get();
 //                System.out.println(foods1.length + "->" + strings1.length);
                 if (strings1.length == 1) {
-                    System.out.println("Mapped " + strings1[0] + " to " + s);
+//                    System.out.println("Mapped " + strings1[0] + " to " + s);
                     allergenToIngredient.put(s, strings1[0]);
                     ingredientToAllergen.put(strings1[0], s);
                 }

@@ -374,7 +374,7 @@ public class Day20 {
         o.part1 = picture.value();
         final var pictureTile = picture.pictureTile;
         Tile seaM = new Tile(seaMonster);
-        System.out.println(seaM.toString());
+//        System.out.println(seaM.toString());
         final var seaMHeight = seaM.states.length;
         final var seaMWidth = seaM.states[0].length;
         int monsterCount = 0;
@@ -396,7 +396,7 @@ public class Day20 {
                         }
                         if (validMonster) {
                             monsterCount++;
-                            System.out.println("Found a monster");
+//                            System.out.println("Found a monster");
                         }
                     }
 
