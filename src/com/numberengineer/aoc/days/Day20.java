@@ -2,10 +2,7 @@ package com.numberengineer.aoc.days;
 
 import com.numberengineer.aoc.TikTok;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Pattern;
 
 import static com.numberengineer.aoc.Utils.*;
@@ -132,6 +129,24 @@ public class Day20 {
         if (!testMode) {
             data = getData(day);
         }
+        record Counter() {
+            static int rotateCnt = 0;
+            static int flip = 0;
+        }
+        record Side(boolean... state) {
+            @Override
+            public boolean equals(Object o) {
+                if (this == o) return true;
+                if (o == null || getClass() != o.getClass()) return false;
+                Side side = (Side) o;
+                return Arrays.equals(state, side.state);
+            }
+
+            @Override
+            public int hashCode() {
+                return Arrays.hashCode(state);
+            }
+        }
         class Tile {
             final long tileID;
             final int size;
@@ -221,6 +236,7 @@ public class Day20 {
                     }
                 }
                 this.states = booleans;
+                Counter.rotateCnt++;
             }
 
             void flip() {
@@ -231,6 +247,7 @@ public class Day20 {
                     }
                 }
                 this.states = booleans;
+                Counter.flip++;
             }
 
             @Override
@@ -260,17 +277,48 @@ public class Day20 {
             }
         }
         class Picture {
-            final Tile[][] tileSquare;
-            final HashSet<Tile> tiles = new HashSet<>();
-            final ArrayList<Tile> usedTiles = new ArrayList<>();
-            final int size;
+            Tile[][] tileSquare;
+            HashSet<Tile> tiles = new HashSet<>();
+            ArrayList<Tile> usedTiles = new ArrayList<>();
+            int size;
             Tile pictureTile;
+            private HashMap<Side, Tile> tileHashMap;
+            private HashMap<Tile, HashSet<Tile>> friends;
+            private Tile[] corners;
+            private Tile[] edges;
+            private Tile[] centerpieces;
 
             public Picture(Tile[] tiles) {
 
                 size = (int) Math.round(Math.sqrt(tiles.length));
                 tileSquare = new Tile[size][size];
                 this.tiles.addAll(Arrays.asList(tiles));
+            }
+
+            public Picture(HashMap<Tile, HashSet<Tile>> friends, HashMap<Side, Tile> tileHashMap, Tile[] corners, Tile[] edges, Tile[] centerpieces) {
+                this.tileHashMap = tileHashMap;
+                this.friends = friends;
+                this.corners = corners;
+                this.edges = edges;
+                this.centerpieces = centerpieces;
+
+            }
+
+            void solveFaster() {
+                tileSquare[0][0] = corners[0];
+                int fail=0;
+                while (!tileHashMap.containsKey(new Side(corners[0].rightSide())) && !tileHashMap.containsKey(new Side(corners[0].bottomSide()))) {
+                    fail++;
+                    if (fail==4){
+                        tileSquare[0][0].flip();
+                    }else {
+                        tileSquare[0][0].rotate();
+                    }
+                }
+            }
+
+            void solveRightLeft() {
+
             }
 
             void solve() {
@@ -369,14 +417,44 @@ public class Day20 {
             long part2 = 0;
         };
         final var tiles = Arrays.stream(data.split("\n\n")).map(Tile::new).toArray(Tile[]::new);
-        Picture picture = new Picture(tiles);
+        HashMap<Side, Tile> tileHashMap = new HashMap<>();
+        HashMap<Tile, HashSet<Tile>> friends = new HashMap<>();
+        Arrays.stream(tiles).forEach(t -> friends.put(t, new HashSet<>()));
+        Arrays.stream(tiles).forEach(tile -> {
+            Tile[] tilez = new Tile[8];
+            tilez[0] = tileHashMap.put(new Side(tile.leftSide()), tile);
+            tilez[1] = tileHashMap.put(new Side(tile.rightSide()), tile);
+            tilez[2] = tileHashMap.put(new Side(tile.topSide()), tile);
+            tilez[3] = tileHashMap.put(new Side(tile.bottomSide()), tile);
+            tile.rotate();
+            tile.rotate();
+            tilez[4] = tileHashMap.put(new Side(tile.leftSide()), tile);
+            tilez[5] = tileHashMap.put(new Side(tile.rightSide()), tile);
+            tilez[6] = tileHashMap.put(new Side(tile.topSide()), tile);
+            tilez[7] = tileHashMap.put(new Side(tile.bottomSide()), tile);
+            final var myList = friends.get(tile);
+            Arrays.stream(tilez).filter(Objects::nonNull).distinct().forEach(t -> {
+                myList.add(t);
+                friends.get(t).add(tile);
+                System.out.println(tile.tileID + "->" + t.tileID);
+            });
+        });
+        final var corners = friends.entrySet().stream().filter(entry -> entry.getValue().size() == 2).map(Map.Entry::getKey).toArray(Tile[]::new);
+        final var edges = friends.entrySet().stream().filter(entry -> entry.getValue().size() == 3).map(Map.Entry::getKey).toArray(Tile[]::new);
+        final var centerpieces = friends.entrySet().stream().filter(entry -> entry.getValue().size() == 4).map(Map.Entry::getKey).toArray(Tile[]::new);
+        System.out.println(corners.length + " corners founds");
+        System.out.println(edges.length + " edges founds");
+        System.out.println(centerpieces.length + " centerpieces founds");
+        Picture picture = new Picture(friends, tileHashMap, corners, edges, centerpieces);
+        picture.solveFaster();
+        tikTok.toc(System.out, "before Solve");
         picture.solve();
+        tikTok.toc(System.out, "after Solve");
         o.part1 = picture.value();
         final var pictureTile = picture.pictureTile;
         Tile seaM = new Tile(seaMonster);
 //        System.out.println(seaM.toString());
-        final var seaMHeight = seaM.states.length;
-        final var seaMWidth = seaM.states[0].length;
+
         int monsterCount = 0;
         for (int i = 0; i < 2; i++) {
             if (i != 0) {
@@ -386,6 +464,9 @@ public class Day20 {
                 if (j != 0) {
                     pictureTile.rotate();
                 }
+//                System.out.println(seaM);
+                var seaMHeight = seaM.states.length;
+                var seaMWidth = seaM.states[0].length;
                 for (int m = 0; m < pictureTile.states.length - seaMHeight; m++) {
                     for (int n = 0; n < pictureTile.states[0].length - seaMWidth; n++) {
                         boolean validMonster = true;
@@ -401,8 +482,16 @@ public class Day20 {
                     }
 
                 }
+                if (monsterCount != 0) {
+                    break;
+                }
+            }
+            if (monsterCount != 0) {
+                break;
             }
         }
+        System.out.println("flip " + Counter.flip);
+        System.out.println("rotateCnt " + Counter.rotateCnt);
         o.part2 = pictureTile.activeTiles() - (long) seaM.activeTiles() * monsterCount;
         endOfWork(tikTok, day, testMode, o.part1, o.part2);
     }
