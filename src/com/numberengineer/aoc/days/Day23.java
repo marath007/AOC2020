@@ -145,6 +145,7 @@ public class Day23 {
             if (verbose) {
                 System.out.println(nodeCircle);
             }
+            System.out.print("\r Part 1:" + Utils.consoleProgressBar(j / 100f));
             Node[] set = new Node[3];
             for (int i = 0; i < 3; i++) {
                 set[i] = nodeCircle.pullRightOne();
@@ -161,6 +162,8 @@ public class Day23 {
             nodeCircle.size += set.length;
             nodeCircle.currentNode = nodeCircle.currentNode.right;
         }
+        System.out.print("\r Part 1:" + Utils.consoleProgressBar(1f));
+        System.out.println();
         if (verbose) {
             System.out.println(nodeCircle);
         }
@@ -176,12 +179,10 @@ public class Day23 {
             nodeCircle.putNode(new Node(nodeCircle.size + 1));
         }
         nodeCircle.sow();
-        System.out.println("###progress###");
-        System.out.println();
         for (int j = 0; j < 10000000; j++) {
 
-            if (j % 100000 == 0) {
-                System.out.print("\r" + Utils.consoleProgressBar(j / 10000000f));
+            if (j % 76543 == 0) {
+                System.out.print("\r Part 2:" + Utils.consoleProgressBar(j / 10000000f));
             }
 
             Node[] set = new Node[3];
@@ -200,7 +201,7 @@ public class Day23 {
             nodeCircle.size += set.length;
             nodeCircle.currentNode = nodeCircle.currentNode.right;
         }
-        System.out.print("\r" + Utils.consoleProgressBar(1));
+        System.out.print("\r Part 2:" + Utils.consoleProgressBar(1));
         System.out.println();
         final var right = nodeCircle.contains(1).right;
         final var rightRight = right.right;

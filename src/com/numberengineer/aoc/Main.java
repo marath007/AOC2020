@@ -5,6 +5,7 @@ import java.util.Arrays;
 public class Main {
 
     public static void main(String[] args) {
+        Math.addExact(Integer.MAX_VALUE,1);
         int[] ints = getInts(10000000);
         TikTok tikTok = new TikTok();
         int sum = 0;
