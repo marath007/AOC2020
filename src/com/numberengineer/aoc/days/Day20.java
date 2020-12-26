@@ -3,6 +3,7 @@ package com.numberengineer.aoc.days;
 import com.numberengineer.aoc.TikTok;
 
 import java.util.*;
+import java.util.function.LongBinaryOperator;
 import java.util.regex.Pattern;
 
 import static com.numberengineer.aoc.Utils.*;
@@ -442,11 +443,12 @@ public class Day20 {
         final var corners = friends.entrySet().stream().filter(entry -> entry.getValue().size() == 2).map(Map.Entry::getKey).toArray(Tile[]::new);
         final var edges = friends.entrySet().stream().filter(entry -> entry.getValue().size() == 3).map(Map.Entry::getKey).toArray(Tile[]::new);
         final var centerpieces = friends.entrySet().stream().filter(entry -> entry.getValue().size() == 4).map(Map.Entry::getKey).toArray(Tile[]::new);
+        System.out.println("fast part 1 "+ Arrays.stream(corners).mapToLong(t->t.tileID).reduce((left, right) -> left*right).getAsLong());
         System.out.println(corners.length + " corners founds");
         System.out.println(edges.length + " edges founds");
         System.out.println(centerpieces.length + " centerpieces founds");
         Picture picture = new Picture(friends, tileHashMap, corners, edges, centerpieces);
-        picture.solveFaster();
+//        picture.solveFaster();
         tikTok.toc(System.out, "before Solve");
         picture.solve();
         tikTok.toc(System.out, "after Solve");
