@@ -437,22 +437,25 @@ public class Day20 {
             Arrays.stream(tilez).filter(Objects::nonNull).distinct().forEach(t -> {
                 myList.add(t);
                 friends.get(t).add(tile);
-                System.out.println(tile.tileID + "->" + t.tileID);
+//                System.out.println(tile.tileID + "->" + t.tileID);
             });
         });
         final var corners = friends.entrySet().stream().filter(entry -> entry.getValue().size() == 2).map(Map.Entry::getKey).toArray(Tile[]::new);
         final var edges = friends.entrySet().stream().filter(entry -> entry.getValue().size() == 3).map(Map.Entry::getKey).toArray(Tile[]::new);
         final var centerpieces = friends.entrySet().stream().filter(entry -> entry.getValue().size() == 4).map(Map.Entry::getKey).toArray(Tile[]::new);
-        System.out.println("fast part 1 "+ Arrays.stream(corners).mapToLong(t->t.tileID).reduce((left, right) -> left*right).getAsLong());
-        System.out.println(corners.length + " corners founds");
-        System.out.println(edges.length + " edges founds");
-        System.out.println(centerpieces.length + " centerpieces founds");
-        Picture picture = new Picture(friends, tileHashMap, corners, edges, centerpieces);
+        o.part1=Arrays.stream(corners).mapToLong(t->t.tileID).reduce((left, right) -> left*right).getAsLong();
+        tikTok.toc(System.out," part 1");
+//        System.out.println("fast part 1 "+ Arrays.stream(corners).mapToLong(t->t.tileID).reduce((left, right) -> left*right).getAsLong());
+//        System.out.println(corners.length + " corners founds");
+//        System.out.println(edges.length + " edges founds");
+//        System.out.println(centerpieces.length + " centerpieces founds");
+//        Picture picture = new Picture(friends, tileHashMap, corners, edges, centerpieces);
+        Picture picture = new Picture(tiles);
 //        picture.solveFaster();
         tikTok.toc(System.out, "before Solve");
         picture.solve();
         tikTok.toc(System.out, "after Solve");
-        o.part1 = picture.value();
+//        o.part1 = picture.value();
         final var pictureTile = picture.pictureTile;
         Tile seaM = new Tile(seaMonster);
 //        System.out.println(seaM.toString());
@@ -484,13 +487,13 @@ public class Day20 {
                     }
 
                 }
-                if (monsterCount != 0) {
-                    break;
-                }
+//                if (monsterCount != 0) {
+//                    break;
+//                }
             }
-            if (monsterCount != 0) {
-                break;
-            }
+//            if (monsterCount != 0) {
+//                break;
+//            }
         }
         System.out.println("flip " + Counter.flip);
         System.out.println("rotateCnt " + Counter.rotateCnt);

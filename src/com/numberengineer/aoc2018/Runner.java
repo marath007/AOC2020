@@ -1,7 +1,5 @@
 package com.numberengineer.aoc2018;
 
-import com.numberengineer.aoc2018.days.Day7;
-
 public class Runner {
 
 
