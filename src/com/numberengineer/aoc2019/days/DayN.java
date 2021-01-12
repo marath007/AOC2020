@@ -1,4 +1,4 @@
-package com.numberengineer.aoc2018.days;
+package com.numberengineer.aoc2019.days;
 
 import com.numberengineer.aoc.TikTok;
 
@@ -12,7 +12,7 @@ public class DayN {
 //        boolean testMode = false;
         String data = "";
         if (!testMode) {
-            data = getData(day);
+            data = getData(day, "2019");
         }
         var o = new Object() {
             long part1 = 0;
