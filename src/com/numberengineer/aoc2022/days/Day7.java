@@ -21,7 +21,8 @@ public class Day7 {
             long part2 = 0;
         };
         final var strings = asLines(data);
-        NEFolder curFolder = new NEFolder("");
+
+        NEFolder curFolder = new NEFolder("/");
         for (int i = 0; i < strings.length; i++) {
             var args = strings[i].split(" ");
             if (args[0].equals("$")) {
@@ -47,7 +48,7 @@ public class Day7 {
                 }
             }
         }
-
+        System.out.println(curFolder.getRoot().toString());
         final var freeSpace = 70000000 - curFolder.getRoot().getSize();
         final var toFree = 30000000 - freeSpace;
 //        System.out.println("freeSpace="+freeSpace);
@@ -106,9 +107,27 @@ public class Day7 {
             return parent1;
         }
 
+        public int getDepth() {
+            if (parent == null) return 0;
+            return parent.getDepth() + 1;
+        }
+
         @Override
         public String toString() {
-            return name;
+            String s = "";
+            for (int i = 0; i < getDepth(); i++) {
+                s += "  ";
+            }
+            var me = s + "- " + name + " (dir)\n";
+            s += "  ";
+            for (int i = 0; i < folders.size(); i++) {
+                me += folders.get(i).toString();
+            }
+            for (int i = 0; i < files.size(); i++) {
+                me += s + files.get(i).toString();
+
+            }
+            return me;
         }
 
         @Override
@@ -142,7 +161,7 @@ public class Day7 {
         }
 
         public void addFile(String string, long size) {
-            final var neFile = new NEFile(string, size);
+            final var neFile = new NEFile(this, string, size);
             if (!files.contains(neFile)) {
                 files.add(neFile);
             }
@@ -152,8 +171,10 @@ public class Day7 {
     static class NEFile {
         String name;
         long size;
+        NEFolder parent = null;
 
-        public NEFile(String name, long size) {
+        public NEFile(NEFolder parent, String name, long size) {
+            this.parent = parent;
             this.name = name;
             this.size = size;
         }
@@ -170,7 +191,7 @@ public class Day7 {
 
         @Override
         public String toString() {
-            return name;
+            return "- " + name + " (file, size=" + size + ")\n";
         }
 
         @Override
