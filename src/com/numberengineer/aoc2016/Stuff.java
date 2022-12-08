@@ -29,7 +29,7 @@ public class Stuff {
                 e.printStackTrace();
             }
         }
-
+        day9();
     }
 
 

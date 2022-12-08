@@ -48,14 +48,17 @@ public class Day7 {
                 }
             }
         }
-        System.out.println(curFolder.getRoot().toString());
+//        System.out.println(curFolder.getRoot().toString());
         final var freeSpace = 70000000 - curFolder.getRoot().getSize();
         final var toFree = 30000000 - freeSpace;
 //        System.out.println("freeSpace="+freeSpace);
 //        System.out.println("toFree=" + toFree);
 //        System.out.println(curFolder.getRoot().getSizes());
-        o.part2 = curFolder.getRoot().getSizes().stream().filter(aLong -> aLong >= toFree).mapToLong(Long::longValue).min().getAsLong();
         o.part1 = curFolder.getRoot().getSizes().stream().filter(aLong -> aLong <= 100000).mapToLong(Long::longValue).sum();
+        tikTok.toc(System.out," part 1");
+        o.part2 = curFolder.getRoot().getSizes().stream().filter(aLong -> aLong >= toFree).mapToLong(Long::longValue).min().getAsLong();
+        tikTok.toc(System.out," part 2");
+
         endOfWork(tikTok, day, testMode, o.part1, o.part2);
     }
 
@@ -118,7 +121,7 @@ public class Day7 {
             for (int i = 0; i < getDepth(); i++) {
                 s += "  ";
             }
-            var me = s + "- " + name + " (dir)\n";
+            var me = s + "- " + name + " (dir, size=" + getSize() + ")\n";
             s += "  ";
             for (int i = 0; i < folders.size(); i++) {
                 me += folders.get(i).toString();
