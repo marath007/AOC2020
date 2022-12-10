@@ -20,8 +20,6 @@ public class Day8 {
         if (!testMode) {
             data = getData(day, "2022");
         }
-         record Coord( int x, int y){
-        }
 
 
         var o = new Object() {
@@ -41,38 +39,25 @@ public class Day8 {
         for (int i = 0; i < grid.length; i++) {
             int height = -1;
             for (int j = 0; j < grid[i].length; j++) {
-                if (grid[i][j] > height) {
-                    listOfTree.add(new Coord(i, j));
-                    height = grid[i][j];
-                }
+                height = getHeight(listOfTree, grid, i, height, j);
             }
         }
         for (int i = 0; i < grid.length; i++) {
             int height = -1;
             for (int j = grid[i].length - 1; j >= 0; j--) {
-                if (grid[i][j] > height) {
-                    listOfTree.add(new Coord(i, j));
-                    height = grid[i][j];
-                }
+                height = getHeight(listOfTree, grid, i, height, j);
             }
         }
         for (int j = 0; j < grid[0].length; j++) {
             int height = -1;
             for (int i = 0; i < grid.length; i++) {
-                if (grid[i][j] > height) {
-                    listOfTree.add(new Coord(i, j));
-                    height = grid[i][j];
-
-                }
+                height = getHeight(listOfTree, grid, i, height, j);
             }
         }
         for (int j = 0; j < grid[0].length; j++) {
             int height = -1;
             for (int i = grid.length - 1; i >= 0; i--) {
-                if (grid[i][j] > height) {
-                    listOfTree.add(new Coord(i, j));
-                    height = grid[i][j];
-                }
+                height = getHeight(listOfTree, grid, i, height, j);
             }
         }
         for (int i = 3; i < grid.length; i++) {
@@ -80,57 +65,46 @@ public class Day8 {
                 final var initH = grid[i][j];
                 var value = 1;
                 var sightLen = 0;
-                for (int k = i+1; k < grid.length; k++) {
+                for (int k = i + 1; k < grid.length; k++) {
                     if (initH > grid[k][j]) {
                         sightLen++;
-                    } else if (initH == grid[k][j]) {
-                        sightLen++;
-                        break;
                     } else {
+                        sightLen++;
                         break;
                     }
                 }
-                value*=sightLen;
+                value *= sightLen;
                 sightLen = 0;
-                for (int k = i-1; k >= 0; k--) {
+                for (int k = i - 1; k >= 0; k--) {
                     if (initH > grid[k][j]) {
                         sightLen++;
-                    } else if (initH == grid[k][j]) {
-                        sightLen++;
-                        break;
                     } else {
                         sightLen++;
                         break;
                     }
                 }
-                value*=sightLen;
+                value *= sightLen;
                 sightLen = 0;
-                for (int k = j+1; k < grid[i].length; k++) {
+                for (int k = j + 1; k < grid[i].length; k++) {
                     if (initH > grid[i][k]) {
                         sightLen++;
-                    } else if (initH == grid[i][k]) {
-                        sightLen++;
-                        break;
                     } else {
                         sightLen++;
                         break;
                     }
                 }
-                value*=sightLen;
+                value *= sightLen;
                 sightLen = 0;
-                for (int k = j-1; k >=0; k--) {
+                for (int k = j - 1; k >= 0; k--) {
                     if (initH > grid[i][k]) {
                         sightLen++;
-                    } else if (initH == grid[i][k]) {
-                        sightLen++;
-                        break;
                     } else {
                         sightLen++;
                         break;
                     }
                 }
-                value*=sightLen;
-                o.part2=Math.max(value,o.part2);
+                value *= sightLen;
+                o.part2 = Math.max(value, o.part2);
             }
         }
 
@@ -139,6 +113,17 @@ public class Day8 {
 
         o.part1 = listOfTree.size();
         endOfWork(tikTok, day, testMode, o.part1, o.part2);
+    }
+
+    private static int getHeight(HashSet<Coord> listOfTree, int[][] grid, int i, int height, int j) {
+        if (grid[i][j] > height) {
+            listOfTree.add(new Coord(i, j));
+            height = grid[i][j];
+        }
+        return height;
+    }
+
+    record Coord(int x, int y) {
     }
 }
 
