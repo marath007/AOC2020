@@ -12,7 +12,7 @@ public class Runner {
     public static void main(String[] args) {
         for (int i = 25; i > 0; i--) {
             try {
-                Class.forName("com.numberengineer.aoc2022.days.Day"+i).getMethod("day"+i).invoke(null);
+                Class.forName("com.numberengineer.aoc2022.days.Day" +i).getMethod("day"+i).invoke(null);
                 break;
             } catch (IllegalAccessException | NoSuchMethodException  |
                      ClassNotFoundException ignored) {

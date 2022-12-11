@@ -12,14 +12,7 @@ public class Day9 {
         final var day = getDay();
 //        boolean testMode = true;
         boolean testMode = false;
-        String data = "R 5\n" +
-                "U 8\n" +
-                "L 8\n" +
-                "D 3\n" +
-                "R 17\n" +
-                "D 10\n" +
-                "L 25\n" +
-                "U 20";
+        String data = "R 5\n" + "U 8\n" + "L 8\n" + "D 3\n" + "R 17\n" + "D 10\n" + "L 25\n" + "U 20";
         if (!testMode) {
             data = getData(day, "2022");
         }
